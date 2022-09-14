@@ -2,13 +2,14 @@ package main
 
 import (
 	"context"
-	"github.com/nicholasjackson/building-microservices-youtube/product-api/handlers"
-	"github.com/nicholasjackson/env"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"time"
+
+	"github.com/nicholasjackson/building-microservices-youtube/product-api/handlers"
+	"github.com/nicholasjackson/env"
 )
 
 var bindAddress = env.String("BIND_ADDRESS", false, ":9090", "Bind address for the server")

@@ -3,6 +3,7 @@ package handlers
 import (
 	"log"
 	"net/http"
+	"regexp"
 
 	"github.com/nicholasjackson/building-microservices-youtube/product-api/data"
 )
@@ -26,6 +27,17 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if r.Method == http.MethodPost {
+		p.addProduct(rw, r)
+		return
+	}
+
+	if r.Method == http.MethodPut {
+		p := r.URL.Path
+		r: = regexp.MustCompile(`/([0-9]+)`)
+		r.FindAllStringSubmatch()
+	}
+
 	// catch all
 	// if no method is satisfied return an error
 	rw.WriteHeader(http.StatusMethodNotAllowed)
@@ -43,4 +55,19 @@ func (p *Products) getProducts(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		http.Error(rw, "Unable to marshal json", http.StatusInternalServerError)
 	}
+}
+
+func (p *Products) addProduct(rw http.ResponseWriter, r *http.Request) {
+
+	p.l.Println("Handle POST Products")
+
+	prod := &data.Product{}
+	err := prod.FromJSON(r.Body)
+
+	if err != nil {
+		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	p.l.Printf("Product: %#v", prod)
+	data.AddProduct(prod)
 }
