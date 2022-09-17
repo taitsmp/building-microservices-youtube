@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 
 	"github.com/nicholasjackson/building-microservices-youtube/product-api/data"
 )
@@ -33,9 +35,29 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	if r.Method == http.MethodPut {
-		p := r.URL.Path
-		r: = regexp.MustCompile(`/([0-9]+)`)
-		r.FindAllStringSubmatch()
+		p.l.Println("PUT")
+		t := regexp.MustCompile(`/([0-9]+)`)
+		g := t.FindAllStringSubmatch(r.URL.Path, -1)
+
+		if len(g) != 1 {
+			http.Error(rw, "Invalid URL 1", http.StatusBadRequest)
+			return
+		}
+
+		if len(g[0]) != 2 {
+			http.Error(rw, "Invalid URL 2", http.StatusBadRequest)
+			return
+		}
+		idString := g[0][1]
+		id, err := strconv.Atoi(idString)
+
+		if err != nil {
+			http.Error(rw, fmt.Sprintf("Invalid URL 3 - %s", err), http.StatusBadRequest)
+			return
+		}
+
+		p.l.Println("got id", id)
+
 	}
 
 	// catch all
