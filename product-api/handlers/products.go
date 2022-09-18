@@ -58,11 +58,35 @@ func (p *Products) ServeHTTP(rw http.ResponseWriter, r *http.Request) {
 
 		p.l.Println("got id", id)
 
+		p.updateProducts(id, rw, r)
+		return
+
 	}
 
 	// catch all
 	// if no method is satisfied return an error
 	rw.WriteHeader(http.StatusMethodNotAllowed)
+}
+
+func (p *Products) updateProducts(id int, rw http.ResponseWriter, r *http.Request) {
+	p.l.Println("Handle PUT Products")
+
+	prod := &data.Product{}
+	err := prod.FromJSON(r.Body)
+
+	if err != nil {
+		http.Error(rw, "unable to unmarshal json", http.StatusBadRequest)
+	}
+
+	err = data.UpdateProduct(id, *prod)
+
+	if err == data.ErrProductNotFound {
+		http.Error(rw, "Product Not Found", http.StatusNotFound)
+		return
+	} else if err != nil {
+		http.Error(rw, "Error with Update", http.StatusInternalServerError)
+	}
+
 }
 
 // getProducts returns the products from the data store
